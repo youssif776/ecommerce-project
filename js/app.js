@@ -1,3 +1,7 @@
+const SUPABASE_URL = "https://degjnhwograoklbabmue.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRlZ2puaHdvZ3Jhb2tsYmFibXVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTExOTQ5MTEsImV4cCI6MjEwNjc3MDkxMX0.-9FGSnuWbwleumTsSqPelSgaB92arDQRveiHNa69tps";
+const supabaseclient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 const products = [
     {
         id: 1,
@@ -154,24 +158,28 @@ function renderProducts(list) {
         <p>AED ${prod.price.toLocaleString()}</p>
         <p class="stock">${stockLabel}</p>
         <button ${prod.stock === 0 ? "disabled" : ""}>Add to Cart</button>
+        <a href="product-details.html?id=${prod.product_id}">View details</a>
+
       </div>`;
   }).join("");
 }
 
-renderProducts(products);
+async function loadProducts() {
+  const { data: products, error } = await supabaseclient
+    .from("product")
+    .select("*, category(category_name)")
+    .order("name");
 
-const searchBox = document.getElementById("search-box");
-if (searchBox) searchBox.addEventListener("input", e => {
-  const term = e.target.value.toLowerCase();
-  renderProducts(products.filter(p => p.name.toLowerCase().includes(term)));
-});
+  if (error) {
+    document.getElementById("product-list").innerHTML =
+      `<p>Could not load products: ${error.message}</p>`;
+    return;
+  }
+  renderProducts(products);
+}
 
-document.querySelectorAll(".category-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    const cat = btn.dataset.category;
-    renderProducts(cat === "All" ? products : products.filter(p => p.category === cat));
-  });
-});
+loadProducts();
+
 
 
 const sortSelect = document.getElementById("sort-select");
@@ -181,4 +189,3 @@ if (sortSelect) sortSelect.addEventListener("change", e => {
   if (e.target.value === "high-low") sorted.sort((a, b) => b.price - a.price);
   renderProducts(sorted);
 });
-
