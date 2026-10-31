@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShopNow — Cart</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <h1 class="logo">ShopNow</h1>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="products.html">Products</a>
+      <a href="about.html">About</a>
+      <a href="cart.html">Cart</a>
+      <span id="auth-nav-slot"></span>
+    </nav>
+  </header>
+  <main class="cart">
+    <h1>Your cart</h1>
+    <p id="cart-message" role="status"></p>
+    <div id="cart-items"></div>
+    <p>Subtotal: AED <span id="subtotal">0.00</span></p>
+    <a href="checkout.html">Proceed to checkout</a>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

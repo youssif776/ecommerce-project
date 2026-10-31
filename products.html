@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ShopNow — Home</title>
+  <title>ShopNow — Products</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/app.js"></script>
   <header class="site-header">
     <h1 class="logo">ShopNow</h1>
     <nav class="main-nav">
       <a href="index.html">Home</a>
       <a href="products.html">Products</a>
       <a href="about.html">About</a>
+      <a href="cart.html">Cart</a>
+      <span id="auth-nav-slot"></span>
     </nav>
   </header>
  
@@ -22,26 +22,30 @@
     <h2>Everyday tech, honest prices.</h2>
   </section>
  
-  <section>
-  <input
-  type="text" id="search-box" placeholder="search products..."
-  >
- 
-<button class="category-btn" data-category="All">All</button>
-<button class="category-btn" data-category="Computers">Computers</button>
-<button class="category-btn" data-category="Accessories">Accessories</button>
-<button class="category-btn" data-category="Phones">Phones</button>
-<button class="category-btn" data-category="Samsung Camera">Samsung Camera</button>
-<label for="sort-select">Sort by</label>
-<select id="sort-select">
-  <option value="featured">Featured</option>
-  <option value="low-high">Price: Low to high</option>
-  <option value="high-low">Price: High to low</option>
-</select>
-</section>
-<div id="product-list" class="product-grid"></div>
+  <main>
+    <section class="product-controls" aria-label="Product filters">
+      <label for="search-box">Search products</label>
+      <input type="search" id="search-box" placeholder="Search products...">
+      <div class="category-filters" aria-label="Filter by category">
+        <button class="category-btn" type="button" data-category="All">All</button>
+        <button class="category-btn" type="button" data-category="Computers">Computers</button>
+        <button class="category-btn" type="button" data-category="Accessories">Accessories</button>
+        <button class="category-btn" type="button" data-category="Phones">Phones</button>
+        <button class="category-btn" type="button" data-category="Samsung Camera">Samsung Camera</button>
+      </div>
+      <label for="sort-select">Sort by</label>
+      <select id="sort-select">
+        <option value="featured">Featured</option>
+        <option value="low-high">Price: Low to high</option>
+        <option value="high-low">Price: High to low</option>
+      </select>
+    </section>
+    <p id="product-status" role="status"></p>
+    <p id="cart-message" role="status"></p>
+    <div id="product-list" class="product-grid"></div>
+  </main>
   <footer class="site-footer"><p>&copy; 2025 ShopNow.</p></footer>
-
-
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>

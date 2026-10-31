@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Register</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+ 
+<nav>
+    <a href="index.html">Home</a>
+    <a href="products.html">Products</a>
+    <a href="cart.html">Cart</a>
+    <span id="auth-nav-slot"></span>
+</nav>
+ 
+<h1>Create Account</h1>
+ 
+<form id="register-form">
+    <label for="email">Email</label>
+    <input
+        type="email"
+        id="email"
+        required
+    >
+ 
+    <label for="password">Password</label>
+    <input
+        type="password"
+        id="password"
+        required
+        minlength="6"
+    >
+ 
+    <button type="submit">Register</button>
+</form>
+<p id="auth-message" role="status"></p>
+ 
+<p>
+    Already have an account?
+    <a href="login.html">Login</a>
+</p>
+ 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/app.js"></script>
+<script>
+    document.getElementById("register-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+ 
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+ 
+        const client = window.shopSupabaseClient;
+        if (!client) {
+            document.getElementById("auth-message").textContent =
+                "Registration is unavailable until Supabase is configured.";
+            return;
+        }
+        try {
+            const { error } = await client.auth.signUp({ email, password });
+            if (error) {
+                document.getElementById("auth-message").textContent = error.message;
+                return;
+            }
+            document.getElementById("auth-message").textContent =
+                "Account created. You can now log in.";
+            window.location.href = "login.html";
+        } catch (error) {
+            document.getElementById("auth-message").textContent = error.message;
+        }
+    });
+</script>
+ 
+</body>
+</html>
+ 

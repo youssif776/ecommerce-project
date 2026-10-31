@@ -1,36 +1,51 @@
-const SUPABASE_URL = "https://degjnhwograoklbabmue.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRlZ2puaHdvZ3Jhb2tsYmFibXVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTExOTQ5MTEsImV4cCI6MjEwNjc3MDkxMX0.-9FGSnuWbwleumTsSqPelSgaB92arDQRveiHNa69tps";
-const supabaseclient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
 const params = new URLSearchParams(window.location.search);
 const productId = params.get("id");
 
 async function loadProduct() {
   const detail = document.getElementById("detail");
+  if (!detail) return;
   if (!productId) {
     detail.textContent = "No product was selected.";
     return;
   }
 
-  const { data: product, error } = await supabaseclient
-    .from("product")
-    .select("*, category(category_name)")
-    .eq("product_id", productId)
-    .single();
+  let product = window.shopProducts?.find(item =>
+    String(item.product_id ?? item.id) === productId
+  );
+  const client = window.shopSupabaseClient;
+  if (client) {
+    try {
+      const { data, error } = await client
+        .from("product")
+        .select("*, category(category_name)")
+        .eq("product_id", productId)
+        .maybeSingle();
 
-  if (error) {
-    detail.textContent = `Could not load product: ${error.message}`;
-    return;
+      if (error) {
+        detail.textContent = `Could not load product: ${error.message}`;
+        return;
+      }
+      product = data;
+    } catch (error) {
+      detail.textContent = `Could not load product: ${error.message}`;
+      return;
+    }
   }
 
   if (!product) {
     detail.textContent = "Product not found.";
     return;
   }
-  detail.innerHTML = `
-    <h2>${product.name}</h2>
-    <p>${product.description}</p>
-    <p>AED ${product.price}</p>
-    <p>Category: ${product.category?.category_name ?? "Uncategorized"}</p>`;
+
+  const heading = document.createElement("h2");
+  heading.textContent = product.name;
+  const description = document.createElement("p");
+  description.textContent = product.description ?? "";
+  const price = document.createElement("p");
+  price.textContent = `AED ${Number(product.price).toLocaleString()}`;
+  const category = document.createElement("p");
+  category.textContent = `Category: ${product.category?.category_name ?? product.category ?? "Uncategorized"}`;
+  detail.replaceChildren(heading, description, price, category);
 }
+
 loadProduct();
