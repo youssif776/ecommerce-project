@@ -1,0 +1,46 @@
+const orderId = new URLSearchParams(window.location.search).get("id");
+const orderNumber = document.getElementById("order-number");
+const itemsContainer = document.getElementById("items");
+
+async function loadConfirmation() {
+  if (!orderNumber || !itemsContainer) return;
+
+  if (!orderId) {
+    orderNumber.textContent = "No order selected";
+    itemsContainer.textContent = "No order details are available.";
+    return;
+  }
+
+  orderNumber.textContent = orderId;
+
+  const client = window.shopSupabaseClient ?? window.supabase;
+  if (!client) {
+    itemsContainer.textContent = "Order details are unavailable because Supabase is not configured.";
+    return;
+  }
+
+  try {
+    const { data: items, error } = await client
+      .from("order_item")
+      .select("*, product(name)")
+      .eq("order_id", orderId);
+
+    if (error) {
+      itemsContainer.textContent = `Could not load order details: ${error.message}`;
+      return;
+    }
+
+    if (!items || items.length === 0) {
+      itemsContainer.textContent = "This order does not contain any items.";
+      return;
+    }
+
+    itemsContainer.innerHTML = items
+      .map(item => `<p>${item.product?.name ?? "Product"} × ${item.quantity} — AED ${(Number(item.price) * Number(item.quantity)).toFixed(2)}</p>`)
+      .join("");
+  } catch (error) {
+    itemsContainer.textContent = `Could not load order details: ${error.message}`;
+  }
+}
+
+loadConfirmation();

@@ -16,14 +16,27 @@
 
   <h1>Checkout</h1>
   <p>Welcome, <span id="who"></span>.</p>
+  <p id="checkout-message" role="status"></p>
+
+  <form id="checkout-form">
+    <label for="name">Name</label>
+    <input type="text" id="name" name="name" required>
+
+    <label for="address">Address</label>
+    <textarea id="address" name="address" required></textarea>
+
+    <label for="phone">Phone</label>
+    <input type="tel" id="phone" name="phone" required>
+
+    <button type="submit" disabled>Place order</button>
+  </form>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/app.js"></script>
+
   <script>
-    (async () => {
-      const user = await requireLogin();
-      if (user) document.getElementById("who").textContent = user.email;
-    })();
+    requireLogin();
   </script>
+
 </body>
 </html>
