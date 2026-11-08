@@ -133,6 +133,18 @@ function getCart() {
   return cart;
 }
 
+function goToCheckout() {
+  try {
+    if (getCart().length === 0) {
+      window.alert("Your cart is empty.");
+      return;
+    }
+    window.location.href = "checkout.html";
+  } catch (error) {
+    showCartError(error);
+  }
+}
+
 function saveCart(cart) {
   localStorage.setItem("cart", JSON.stringify(cart));
 }
@@ -342,77 +354,4 @@ loadProducts();
 renderCart();
 updateNavForAuth();
 
-const checkoutForm = document.getElementById("checkout-form");
-if (checkoutForm) {
-  checkoutForm.addEventListener("submit", async e => {
-    e.preventDefault();
-
-    const name = document.getElementById("name")?.value.trim() ?? "";
-    const address = document.getElementById("address")?.value.trim() ?? "";
-    const phone = document.getElementById("phone")?.value.trim() ?? "";
-
-    if (!name || !address) {
-      alert("Name and address are required.");
-      return;
-    }
-    if (!/^[0-9+ ]{7,15}$/.test(phone)) {
-      alert("Enter a valid phone number.");
-      return;
-    }
-
-    await placeOrder(name, address, phone);
-  });
-}
-
-async function placeOrder(name, address, phone) {
-  const client = window.shopSupabaseClient ?? window.supabase;
-  if (!client) {
-    alert("Checkout is unavailable because Supabase is not configured.");
-    return;
-  }
-
-  const { data: { user }, error: userError } = await client.auth.getUser();
-  if (userError) {
-    alert("Could not check your login: " + userError.message);
-    return;
-  }
-  if (!user) {
-    window.location.href = "login.html";
-    return;
-  }
-
-  const cart = getCart();
-  if (cart.length === 0) {
-    alert("Your cart is empty.");
-    return;
-  }
-
-  const subtotal = cart.reduce((sum, item) => sum + Number(item.price) * Number(item.quantity), 0);
-
-  const { data: order, error } = await client
-    .from("order")
-    .insert([{ customer_id: user.id, total: subtotal, status: "Paid" }])
-    .select()
-    .single();
-
-  if (error) {
-    alert("Could not place order: " + error.message);
-    return;
-  }
-
-  const items = cart.map(item => ({
-    order_id: order.order_id,
-    product_id: item.product_id,
-    quantity: item.quantity,
-    price: item.price,
-  }));
-
-  const { error: itemError } = await client.from("order_item").insert(items);
-  if (itemError) {
-    alert("Could not save your order items: " + itemError.message);
-    return;
-  }
-
-  localStorage.removeItem("cart");
-  window.location.href = `order-confirmation.html?id=${order.order_id}`;
-}
+document.getElementById("checkout-button")?.addEventListener("click", goToCheckout);

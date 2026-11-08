@@ -1,46 +1,33 @@
-const orderId = new URLSearchParams(window.location.search).get("id");
-const orderNumber = document.getElementById("order-number");
-const itemsContainer = document.getElementById("items");
-
-async function loadConfirmation() {
-  if (!orderNumber || !itemsContainer) return;
-
-  if (!orderId) {
-    orderNumber.textContent = "No order selected";
-    itemsContainer.textContent = "No order details are available.";
-    return;
-  }
-
-  orderNumber.textContent = orderId;
-
-  const client = window.shopSupabaseClient ?? window.supabase;
-  if (!client) {
-    itemsContainer.textContent = "Order details are unavailable because Supabase is not configured.";
-    return;
-  }
-
-  try {
-    const { data: items, error } = await client
-      .from("order_item")
-      .select("*, product(name)")
-      .eq("order_id", orderId);
-
-    if (error) {
-      itemsContainer.textContent = `Could not load order details: ${error.message}`;
-      return;
-    }
-
-    if (!items || items.length === 0) {
-      itemsContainer.textContent = "This order does not contain any items.";
-      return;
-    }
-
-    itemsContainer.innerHTML = items
-      .map(item => `<p>${item.product?.name ?? "Product"} × ${item.quantity} — AED ${(Number(item.price) * Number(item.quantity)).toFixed(2)}</p>`)
-      .join("");
-  } catch (error) {
-    itemsContainer.textContent = `Could not load order details: ${error.message}`;
-  }
-}
-
-loadConfirmation();
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Confirmation — ShopNow</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <h1 class="logo">ShopNow</h1>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="products.html">Products</a>
+      <a href="cart.html">Cart</a>
+      <span id="auth-nav-slot"></span>
+    </nav>
+  </header>
+  <main class="cart">
+    <h1>Thank you for your order!</h1>
+    <p id="confirmation-message" role="status">Loading your order...</p>
+    <h2>Order number</h2>
+    <p id="order-number"></p>
+    <h2>Ordered products</h2>
+    <div id="items"></div>
+    <h3 id="order-total"></h3>
+    <p id="order-status"></p>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/app.js"></script>
+  <script src="js/confirmation.js"></script>
+</body>
+</html>
